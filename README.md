@@ -22,13 +22,19 @@
 - auth_keys = [] # SSH public key to add in the known_hosts node's file
 - root_pwd = "" # Explicit.
 
-### Ansible
+### Terraform
 
-Apply terraform file :
+Plan & Apply terraform file :
+
+```bash
+terraform plan
+```
 
 ```bash
 terraform apply
 ```
+
+### Ansible
 
 Provision deployed nodes :
 
