@@ -8,10 +8,10 @@
 
 ## TODO
 
-[ ] `instance-0` node should initialize the kube cluster.
-[ ] The node must install Flannel networking component.
-[ ] The nodes should join the kube cluster automatically.
-[ ] Decouple files to adapt from different cloud providers.
+- [ ] `instance-0` node should initialize the kube cluster.
+- [ ] The node must install Flannel networking component.
+- [ ] The nodes should join the kube cluster automatically.
+- [ ] Decouple files to adapt from different cloud providers.
 
 ### Variables
 
