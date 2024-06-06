@@ -1,0 +1,26 @@
+---
+- name: Kubernetes 3 nodes cluster
+  hosts: all
+  remote_user: root
+
+  tasks:
+    - name: Upgrade packages
+      ansible.builtin.apt:
+        upgrade: full
+        autoclean: true
+        autoremove: true
+      become: true
+
+    - name: Set roles
+      ansible.builtin.set_fact:
+        app_roles: "{{ all_roles }}"
+
+    - name: Run roles
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ app_roles }}"
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
