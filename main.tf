@@ -63,8 +63,9 @@ resource "linode_instance_config" "config" {
 }
 
 resource "linode_instance" "instances" {
-  count = local.instance_number
+	count = local.instance_number
 	label = "instance-${count.index}"
 	region = local.region
 	type = local.instance_type
+	tags = ["terakube"]
 }
