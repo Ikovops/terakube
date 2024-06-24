@@ -1,6 +1,8 @@
 ---
 - name: Kubernetes 3 nodes cluster
-  hosts: all
+  hosts:
+    - workers
+    - control_plane
   remote_user: root
 
   tasks:
