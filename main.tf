@@ -21,8 +21,8 @@ provider "local" {
 
 resource "linode_vpc" "vpc" {
   label = "terakube-vpc"
-	region = "fr-par"
 	description = "Terakube VPC for testing purpposes."
+	region = local.region
 }
 
 resource "linode_vpc_subnet" "subnet" {
