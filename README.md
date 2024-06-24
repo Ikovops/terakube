@@ -16,12 +16,14 @@
 
 ### Variables
 
-- instance_number = 1 # Increase this number if you wish more computing power.
-- disk_size = 10\*1024 # MG to GB, increase first operand to increase disk size
-- region = "" # One region that is provided by your provider
-- instance_type = "" # Instance code from your provider
-- auth_keys = [] # SSH public key to add in the known_hosts node's file
-- root_pwd = "" # Explicit.
+```
+instance_number = 1 # Increase this number if you wish more computing power.
+disk_size = 10\*1024 # MG to GB, increase first operand to increase disk size
+region = "" # One region that is provided by your provider
+instance_type = "" # Instance code from your provider
+auth_keys = [] # SSH public key to add in the known_hosts node's file
+root_pwd = "" # Explicit.
+```
 
 ### Terraform
 
