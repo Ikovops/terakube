@@ -23,14 +23,73 @@
         name: kubelet
         enabled: true
         state: started
+    - name: Check if init file already exists
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/ka-config.yaml"
+      register: ka_config
+    - ansible.builtin.debug:
+        msg: "{{ ka_config }}"
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
     - name: Copy Kubeadm config for cgroup driver
       ansible.builtin.copy:
         src: ./files/ka_config.yaml
         dest: "{{ ansible_user_dir }}/ka-config.yaml"
         mode: "0744"
-    # if your node has a swap partition, turn it off - required by the kubelet
-    #
-    # - name: Disabling swap
-    #   ansible.builtin.shell:
-    #     cmd: |
-    #       swapoff -a
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane" and not ka_config.stat.exists
+    - name: Check if a cluster has laready been created
+      ansible.builtin.stat:
+        path: /etc/kubernetes/admin.conf
+      register: kubeconfig
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Init cluster with kubeadm
+      ansible.builtin.shell:
+        cmd: kubeadm init --config ka-config.yaml --ignore-preflight-errors=NumCPU
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane" and not kubeconfig.stat.exists
+    - name: Check .kube folder
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/.kube"
+      register: kube_folder
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Link kubectl with config
+      ansible.builtin.shell:
+        cmd: |
+          mkdir -p {{ ansible_user_dir }}/.kube
+          cp -i /etc/kubernetes/admin.conf {{ ansible_user_dir }}/.kube/config
+          chown $(id -u):$(id -g) {{ ansible_user_dir }}/.kube/config
+      register: output
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane" and not kube_folder.stat.exists
+    - name: Install Helm
+      ansible.builtin.shell:
+        cmd: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          rm get_helm.sh
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Add Calico project Helm repository
+      kubernetes.core.helm_repository:
+        name: calicoproject
+        url: https://docs.tigera.io/calico/charts
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Install Calico release
+      kubernetes.core.helm:
+        name: calico-tigera
+        chart_ref: calicoproject/tigera-operator
+        chart_version: 3.28.0
+        namespace: tigera-operator
+        create_namespace: true
+        values:
+          installation:
+            calicoNetwork:
+              ipPools:
+                - cidr: 10.244.0.0/16
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Register join cluster command
+      ansible.builtin.shell:
+        cmd: kubeadm token create --print-join-command
+      register: join_cluster_command
+      when: hostvars[inventory_hostname]['hostname'] == "control-plane"
+    - name: Let workers join the cluster
+      ansible.builtin.shell:
+        cmd: "{{ hostvars.main_node.join_cluster_command.stdout }}"
+      when: hostvars[inventory_hostname]['hostname'] != "control-plane"
