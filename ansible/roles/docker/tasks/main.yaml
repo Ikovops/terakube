@@ -31,11 +31,7 @@
     - name: Install required Docker packages
       ansible.builtin.apt:
         pkg:
-          - docker-ce
-          - docker-ce-cli
           - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
     - name: Add vagrant user to Docker group
       ansible.builtin.user:
         name: vagrant
