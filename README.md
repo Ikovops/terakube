@@ -2,15 +2,15 @@
 
 ## Goal of the project
 
-- Learn Terraform.
-- Learn Ansible.
-- Deploy a Kubernetes cluster against Linode cloud provider.
+- Use Terraform.
+- Use and dive into Ansible.
+- Deploy a from-scratch Kubernetes cluster against multiple cloud providers.
 
 ## TODO
 
-- [ ] `instance-0` node should initialize the kube cluster.
-- [ ] The node must install Flannel networking component.
-- [ ] The nodes should join the kube cluster automatically.
+- [x] `instance-0` node should initialize the kube cluster.
+- [x] The node must install Calico networking component.
+- [x] The nodes should join the kube cluster automatically.
 - [ ] Decouple files to adapt from different cloud providers.
 
 ### Variables
@@ -39,7 +39,8 @@ terraform apply
 Provision deployed nodes :
 
 ```bash
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i 'xxx.xxx.xxx.xxx,[...]' --private-key ${PRIVATE_KEY} ./ansible/playbook.yaml
+ansible-galaxy install -r ./ansible/requirements.yaml # Do it once
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.yaml --private-key ${PRIVATE_KEY} ./ansible/playbook.yaml
 ```
 
 ### Main provider
