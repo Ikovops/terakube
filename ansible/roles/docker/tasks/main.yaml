@@ -12,11 +12,6 @@
           - gnupg
           - ca-certificates
         state: present
-    - name: Create keyrings folder
-      ansible.builtin.file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: "0755"
     - name: Add official Docker apt-key
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/debian/gpg
