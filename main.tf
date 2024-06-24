@@ -4,10 +4,18 @@ terraform {
       source = "linode/linode"
       version = "2.21.1"
     }
+    local = {
+      source = "hashicorp/local"
+      version = "2.5.1"
+    }
   }
 }
 
 provider "linode" {
+  # Configuration options
+}
+
+provider "local" {
   # Configuration options
 }
 
@@ -68,4 +76,24 @@ resource "linode_instance" "instances" {
 	region = local.region
 	type = local.instance_type
 	tags = ["terakube"]
+
+resource "local_file" "ansible-inventory" {
+  filename = "./ansible/inventory.yaml"
+	content = <<-EOF
+control_plane:
+  hosts:
+    main_node:
+      ansible_host: ${linode_instance.instances[0].ip_address}
+      hostname: control-plane
+
+workers:
+  hosts:
+    worker_one:
+      ansible_host: ${linode_instance.instances[1].ip_address}
+      hostname: worker-one
+    worker_two:
+      ansible_host: ${linode_instance.instances[2].ip_address}
+      hostname: worker-two
+	EOF
 }
+
