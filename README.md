@@ -11,6 +11,7 @@
 - [x] `instance-0` node should initialize the kube cluster.
 - [x] The node must install Calico networking component.
 - [x] The nodes should join the kube cluster automatically.
+- [ ] The cluter should have an LB to expose Nginx as first app.
 - [ ] Decouple files to adapt from different cloud providers.
 
 ### Variables
