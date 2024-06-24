@@ -12,6 +12,7 @@
         autoclean: true
         autoremove: true
       become: true
+      run_once: true
 
     - name: Set roles
       ansible.builtin.set_fact:
@@ -26,3 +27,20 @@
       ansible.builtin.apt:
         update_cache: true
       become: true
+
+- name: Update local SSH config
+  hosts: localhost
+  tasks:
+    - name: Know the control plane ipv4
+      ansible.builtin.shell:
+        chdir: ".."
+        cmd: terraform output -json ip_addresses | jq -r '.[]' | head -n1
+      register: ipv4_plane
+    - name: Update ssh config file
+      community.general.ssh_config:
+        ssh_config_file: "{{ ansible_user_dir }}/.ssh/config"
+        remote_user: root
+        host: terakube
+        hostname: "{{ ipv4_plane.stdout }}"
+        identity_file: "${CRYPT_PART}/.ssh/terakube"
+        state: present
