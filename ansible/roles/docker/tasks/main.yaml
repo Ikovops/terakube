@@ -32,12 +32,6 @@
       ansible.builtin.apt:
         pkg:
           - containerd.io
-    - name: Add vagrant user to Docker group
-      ansible.builtin.user:
-        name: vagrant
-        append: true
-        groups:
-          - "docker"
     - name: Enable containerd CRI plugin
       ansible.builtin.copy:
         src: ./files/containerd_config.toml
