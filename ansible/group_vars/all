@@ -1,3 +1,4 @@
 all_roles:
+  - networking
   - docker
   - kubernetes

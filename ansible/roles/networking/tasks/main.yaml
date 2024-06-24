@@ -1,0 +1,38 @@
+---
+- name: Authorize IPv4 forward
+  become: true
+  block:
+    - name: Check hostname
+      ansible.builtin.shell:
+        cmd: hostname
+      register: hostname_check
+    - name: Update hostname
+      ansible.builtin.hostname:
+        name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+        use: debian
+      when: hostname_check.stdout == ansible_hostname
+    - name: Check /etc/hosts
+      ansible.builtin.shell:
+        cmd: cat /etc/hosts
+      register: hosts_config
+    - name: Update /etc/hosts
+      ansible.builtin.shell:
+        cmd: |
+          echo "10.0.244.100\tcontrol-plane" >> /etc/hosts
+          echo "10.0.244.110\tworker-one" >> /etc/hosts
+          echo "10.0.244.120\tworker-two" >> /etc/hosts
+      when: hosts_config.stdout.find('control-plane') == -1
+    - name: Know current IPv4 foward
+      ansible.builtin.shell:
+        cmd: sysctl net.ipv4.ip_forward
+      register: ip_foward
+    - name: Update Sysctl definitions
+      ansible.builtin.copy:
+        src: ./files/k8s.conf
+        dest: /etc/sysctl.d/
+        mode: "755"
+      when: ip_foward.stdout != "net.ipv4.ip_forward = 1"
+    - name: Update sysctl configurations
+      ansible.builtin.shell:
+        cmd: sysctl --system
+      when: ip_foward.stdout != "net.ipv4.ip_forward = 1"
